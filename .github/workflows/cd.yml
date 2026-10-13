@@ -47,19 +47,33 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
         run: |
           set -euo pipefail
 
-          DEPLOY_PATH="${DEPLOY_PATH:-~/mern-devops-project}"
+          # Keep ~ literal so it expands on the VPS, not on the runner
+          if [ -z "${DEPLOY_PATH:-}" ]; then
+            DEPLOY_PATH='~/mern-devops-project'
+          fi
 
           ssh -o BatchMode=yes -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" \
-            DEPLOY_PATH="$DEPLOY_PATH" bash -s <<'REMOTE'
+            DEPLOY_PATH="$DEPLOY_PATH" REPO_URL="$REPO_URL" bash -s <<'REMOTE'
           set -euo pipefail
 
+          # Expand ~ on the VPS
+          DEPLOY_PATH="${DEPLOY_PATH/#\~/$HOME}"
           echo "==> Deploy path: $DEPLOY_PATH"
+
+          if [ ! -d "$DEPLOY_PATH/.git" ]; then
+            echo "==> Repo missing — cloning $REPO_URL"
+            mkdir -p "$(dirname "$DEPLOY_PATH")"
+            git clone --branch main "$REPO_URL" "$DEPLOY_PATH"
+          fi
+
           cd "$DEPLOY_PATH"
 
           echo "==> Updating code"
+          git remote set-url origin "$REPO_URL"
           git fetch --prune origin
           git checkout main
           git reset --hard origin/main
