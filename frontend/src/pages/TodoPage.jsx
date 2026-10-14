@@ -49,7 +49,7 @@ function TodoPage() {
   return (
     <div className="app-shell">
       <header className="hero">
-        <h1>MERN Todos</h1>
+        <h1>This MERN Stack | DevOPs PRoject with CI/CD Pipeline</h1>
         <p>Create, update, and track simple tasks through the API.</p>
       </header>
 
