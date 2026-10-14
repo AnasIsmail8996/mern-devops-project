@@ -2,6 +2,12 @@ name: MERN CD
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.cursor/**'
+      - '.github/workflows/ci.yml'
 
 concurrency:
   group: mern-cd-production
