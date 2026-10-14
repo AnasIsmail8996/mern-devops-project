@@ -88,6 +88,14 @@ services:
 
   nginx:
     image: nginx:1.27-alpine
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mern-practice.rule=Host(`devopsappmy.duckdns.org`)"
+      - "traefik.http.routers.mern-practice.entrypoints=websecure"
+      - "traefik.http.routers.mern-practice.tls=true"
+      - "traefik.http.routers.mern-practice.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mern-practice.loadbalancer.server.port=80"
+      - "traefik.docker.network=mern-practice_default"
     ports:
       - "127.0.0.1:8081:80"
     volumes:
@@ -106,3 +114,4 @@ services:
 
 volumes:
   mongo_data:
+  nginx_cache:
